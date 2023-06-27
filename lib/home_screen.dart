@@ -1,244 +1,88 @@
-// import "dart:convert";
-// import 'dart:core';
-// import "package:flutter/cupertino.dart";
-// import "package:flutter/material.dart";
-// import 'package:http/http.dart'as http;
-// import "model/images_model.dart";
-//
-//
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({Key? key}) : super(key: key);
-//
-//   @override
-//   State<HomeScreen> createState() => _HomeScreenState();
-// }
-//
-// void tmpFunction() {
-//   print('Function Called.');
-//
-// }
-// List<ImagListModel?> imagelist =[];
-//
-//
-// double _value = 10;
-//
-// class _HomeScreenState extends State<HomeScreen> {
-//
-//   Future<List<ImagListModel?>> imageApiCall() async {
-//     try {
-//       var request = http.Request(
-//           'GET', Uri.parse('https://picsum.photos/v2/list?page=2&limit=100'));
-//       http.StreamedResponse response = await request.send();
-//       print('Responsecode'+ response.statusCode.toString());
-//       if (response.statusCode == 200) {
-//         var jsonResponse =await jsonDecode(response.toString())as List;
-//         print('jsonrespone ::s'+ jsonResponse.toString());
-//
-//         imagelist = jsonResponse.map((imagListModel)=>ImagListModel.fromJson(imagListModel)).toList();
-//         return imagelist;
-//       } else {
-//         print("Error:");
-//       }
-//     } on Exception catch (e) {
-//       print("error:$e");
-//     }
-//     return imagelist;
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         centerTitle: true,
-//         title: Text('Task 1'),
-//       ),
-//       body: FutureBuilder<ImagListModel?>(
-//           future: imageApiCall(),
-//           builder: (context, snapshot) {
-//             print(snapshot.data.toString());
-//             if (!snapshot.hasData) {
-//               return Center(child: CircularProgressIndicator());
-//             }
-//             else {
-//               return SafeArea(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.center,
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Slider(
-//                       min: 0.0,
-//                       max: 100.0,
-//                       value: _value,
-//                       onChanged: (value) {
-//                         setState(() {
-//                           _value = value;
-//                         });
-//                       },
-//                     ),
-//
-//                     Image.network(
-//                       // 'https://picsum.photos/200/300/?blur',
-//                       snapshot.data!.url!.toString(),
-//                       height: 400,
-//                       width: 390,
-//                       fit: BoxFit.cover,
-//                     ),
-//                     SizedBox(
-//                       height: 30,
-//                     ),
-//                     SizedBox(
-//                       child: Container(
-//                         height: 60,
-//                         width: 350,
-//                         decoration: BoxDecoration(
-//                           borderRadius: BorderRadius.circular(60),
-//                         ),
-//                         child: ElevatedButton(
-//
-//                           onPressed: tmpFunction,
-//                           child: Text(
-//                             'Next',
-//                             style: TextStyle(
-//                                 fontSize: 22
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//               );
-//             }
-//           }
-//       ),
-//
-//     );
-//   }
-// }
-//
-
-
-
-
-//
-//
-import 'dart:convert';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:http/http.dart'as http;
+
+import 'fist_page.dart';
 import 'model/images_model.dart';
 
+
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+   String? title;
+   ImageListModel? imagedata;
+   HomeScreen({
+    @required this.title,
+     @required this.imagedata,
+  });
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
-
+List<ImageListModel?> imagelist = [];
 class _HomeScreenState extends State<HomeScreen> {
-  final double _width = 350;
-  final double _height = 300;
-  int _imageIndex = 0;
-  double _sigmaX = 0;
-  double _sigmaY = 0;
-  double _blur =1;
-  int num = 0;
 
-  final images = [
-    "background1.jpg",
-    "background2.jpg",
-    "background3.jpg"];
+  double blurImage = 0;
+  double sigmaX = 0;
+  double sigmaY = 0;
+  int num = 1;
 
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Blur image'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ..._buildBlurSigmaAndOpacity(),
-            SizedBox(height: 5),
-            _buildImageContainer(),
-            SizedBox(height: 5),
-            ElevatedButton(
-              child: Text('Next image'),
-              onPressed: () {
-                setState(() {
-                  num++;
-                  // _imageIndex = (_imageIndex + 1) % images.length;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print(widget.imagedata!.toString());
   }
 
-  Widget _buildImageContainer() {
-    return BackdropFilter(
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.black,
+    appBar: AppBar(
+      title: Text(widget.title!),
+    ),
+    body:ListView(
+            padding: EdgeInsets.all(16),
+            children: [
+              buildBlurredImage(),
+              const SizedBox(height:0),
+              Slider(
+                value: blurImage,
+                max: 10,
+                onChanged: (value) => setState(() => blurImage = value),
+              ),
+              ElevatedButton(
+                child: Text('Next image'),
+                onPressed: () {
+                  setState(() {
+                    num++;
+                  });
+                },
+              ),
+            ],
+          ),
+  );
 
-      filter: ImageFilter.blur(sigmaX: _sigmaX, sigmaY: _sigmaY),
-      child: Container(
-        width: _width,
-        height: _height,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage('https://picsum.photos//200/300/?blur=$_blur'),
+  Widget buildBlurredImage() => ClipRRect(
+
+    borderRadius: BorderRadius.circular(24),
+    child: Stack(
+      children: [
+        Container(
+          height: 600,
+          width: 450,
+          child: Image.network(widget.imagedata!.downloadUrl.toString(),
+            // 'https://picsum.photos/id/25/200/300/?blur=$blurImage&$id&$num',
             fit: BoxFit.cover,
           ),
         ),
-      ),
-    );
-  }
-  List<Widget> _buildBlurSigmaAndOpacity() {
-    return [
-
-      Text('Change blur sigmaX: ${_sigmaX.toStringAsFixed(2)}'),
-      Slider(
-        min: 0,
-        max: 10,
-
-        value: _sigmaX,
-        label: '$_sigmaX',
-        onChanged: (value) {
-          setState(() {
-            _sigmaX = value;
-          });
-        },
-      ),
-      SizedBox(height: 5),
-      Text('Change blur sigmaY: ${_sigmaY.toStringAsFixed(2)}'),
-      Slider(
-        min: 0,
-        max: 10,
-        value: _sigmaY,
-        onChanged: (value) {
-          setState(() {
-            _sigmaY = value;
-          });
-        },
-      ),
-      SizedBox(height: 5),
-      Text('Change blur sigmaY: ${_blur.toStringAsFixed(2)}'),
-      Slider(
-        min: 0,
-        max: 10,
-        value: _blur,
-        onChanged: (value) {
-          setState(() {
-            _blur++;
-            _blur = value;
-          });
-        },
-      ),
-    ];
-  }
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: blurImage,
+              sigmaY: blurImage,
+            ),
+            child: Container(color: Colors.black.withOpacity(0.2)),
+          ),
+        ),
+      ],
+    ),
+  );
 }

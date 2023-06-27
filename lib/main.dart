@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'fist_page.dart';
 import 'home_screen.dart';
 
 void main() {
@@ -16,9 +17,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-
+        primarySwatch: Colors.deepOrange
+        // primaryColor: Colors.deepOrangeAccent,
       ),
-      home:  HomeScreen(),
+      home:  FirstPage(),
     );
   }
 }
